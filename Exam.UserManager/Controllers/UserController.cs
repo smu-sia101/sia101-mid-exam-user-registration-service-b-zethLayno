@@ -27,7 +27,7 @@ namespace Exam.UserManager.Controllers
             {
                 //***
                 //TODO: Item 4: Implement the logic to get user by id
-                UserDTO user = new UserDTO(); //must invoke userQueryService
+                UserDTO user = _userQueryService.Get(id); //must invoke userQueryService
                 //***
                 UserResourceModel mapped = _mapper.Map<UserResourceModel>(user);
                 return Ok(mapped);
@@ -44,13 +44,13 @@ namespace Exam.UserManager.Controllers
             try
             {
                 IEnumerable<UserDTO> users = _userQueryService.GetAll();
-               
-                if(users == null || !users.Any())
+
+                if (users == null || !users.Any())
                 {
                     return NotFound();
                 }
 
-                IEnumerable<UserResourceModel> mapped = 
+                IEnumerable<UserResourceModel> mapped =
                     _mapper.Map<IEnumerable<UserResourceModel>>(users);
 
                 return Ok(mapped);
@@ -69,7 +69,7 @@ namespace Exam.UserManager.Controllers
                 //***
                 //TODO: Item 5: Implement the logic to add user
                 UserDTO mapped = _mapper.Map<UserDTO>(user);
-                string userId = "some ID from the userWriteService";
+                string userId = _userWriteService.Add(mapped);
                 //***
                 return CreatedAtAction(nameof(Get), new { id = userId }, user);
             }
@@ -88,7 +88,7 @@ namespace Exam.UserManager.Controllers
                 //***
                 //TODO Item 6: Implement the logic to update user
                 UserDTO mapped = _mapper.Map<UserDTO>(user);
-                bool result = false; //result of update from userWriteService
+                bool result = _userWriteService.Update(mapped); ; //result of update from userWriteService
                 //***
                 if (result)
                 {
@@ -110,13 +110,21 @@ namespace Exam.UserManager.Controllers
                 //***
                 //TODO Item 7: Implement the logic to delete user
                 var result = _userWriteService.Delete(id);
-                //I need to return 200 or 204 if the user is deleted successfully
-                //***
+                if (result)
+                {
+                    return NoContent();
+                }
                 return NotFound();
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(ex.Message);
+                {
+                    return BadRequest(ex.Message);
+                }
+                //I need to return 200 or 204 if the user is deleted successfully
+                //***
+
+
             }
         }
     }
